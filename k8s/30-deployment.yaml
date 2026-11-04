@@ -1,0 +1,49 @@
+# Continuous mode: the tool keeps running and syncs on every meta_job_interval_seconds.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: starrocks-cluster-sync
+  namespace: sync
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: starrocks-cluster-sync
+  template:
+    metadata:
+      labels:
+        app: starrocks-cluster-sync
+    spec:
+      containers:
+        - name: sync
+          image: starrocks-cluster-sync:2.0
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: ONE_TIME_RUN_MODE
+              value: "false"
+            - name: JAVA_TOOL_OPTIONS
+              value: "-Xmx512m"
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1
+              memory: 1Gi
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: credentials
+              mountPath: /secrets
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: starrocks-cluster-sync-config
+        - name: credentials
+          secret:
+            secretName: starrocks-cluster-sync-credentials
+            optional: true
