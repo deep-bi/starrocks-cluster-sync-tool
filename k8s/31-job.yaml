@@ -1,0 +1,47 @@
+# One-time mode: a single catch-up pass, then the pod exits.
+# Exit 0 = all tables synced. Exit 1 = some tables could not be reproduced on the target (see log).
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: starrocks-cluster-sync
+  namespace: sync
+spec:
+  backoffLimit: 2
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      labels:
+        app: starrocks-cluster-sync
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: sync
+          image: starrocks-cluster-sync:2.0
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: ONE_TIME_RUN_MODE
+              value: "true"
+            - name: JAVA_TOOL_OPTIONS
+              value: "-Xmx512m"
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1
+              memory: 1Gi
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: credentials
+              mountPath: /secrets
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: starrocks-cluster-sync-config
+        - name: credentials
+          secret:
+            secretName: starrocks-cluster-sync-credentials
+            optional: true

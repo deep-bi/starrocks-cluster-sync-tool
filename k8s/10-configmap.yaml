@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: starrocks-cluster-sync-config
+  namespace: sync
+data:
+  sync.properties: |
+    # Overridden by ONE_TIME_RUN_MODE env in the Deployment / Job manifests
+    one_time_run_mode=false
+
+    source_fe_host=CHANGE_ME.source-fe.svc.cluster.local
+    source_fe_query_port=9030
+    source_cluster_user=root
+
+    target_fe_host=CHANGE_ME.target-fe.svc.cluster.local
+    target_fe_query_port=9030
+    target_cluster_user=root
+
+    jdbc_connect_timeout_ms=30000
+    jdbc_socket_timeout_ms=60000
+
+    # <db> or <db.table> or <db.table.partition>, comma separated. include is applied before exclude.
+    include_data_list=
+    exclude_data_list=
+
+    target_cluster_storage_volume=
+    target_cluster_replication_num=-1
+    target_cluster_max_disk_used_percent=80
+    target_cluster_enable_persistent_index=
+    target_cluster_use_builtin_storage_volume_only=false
+
+    max_replication_data_size_per_job_in_gb=1024
+
+    meta_job_interval_seconds=180
+    meta_job_threads=4
+    ddl_job_interval_seconds=5
+    ddl_job_batch_size=10
+    add_physical_partition_batch_size=1024
+
+    ddl_job_allow_drop_target_only=false
+    ddl_job_allow_drop_schema_change_table=true
+    ddl_job_allow_drop_inconsistent_partition=true
+    ddl_job_allow_drop_inconsistent_time_partition=true
+    ddl_job_allow_drop_partition_target_only=true
+
+    enable_bitmap_index_sync=false
+    ddl_job_allow_drop_inconsistent_bitmap_index=true
+    ddl_job_allow_drop_bitmap_index_target_only=true
+
+    enable_materialized_view_sync=false
+    ddl_job_allow_drop_inconsistent_materialized_view=true
+    ddl_job_allow_drop_materialized_view_target_only=false
+
+    enable_view_sync=false
+    ddl_job_allow_drop_inconsistent_view=true
+    ddl_job_allow_drop_view_target_only=false
+
+    replication_job_interval_seconds=10
+    replication_job_batch_size=10
+    report_interval_seconds=60
+
+    enable_table_property_sync=false
+
+    enable_privilege_sync=false
+    ddl_job_allow_drop_user_target_only=false
+    ddl_job_allow_drop_role_target_only=false
+    ddl_job_allow_drop_inconsistent_user=true
+    ddl_job_allow_revoke_grant_target_only=false
+    privilege_sync_exclude_users=
+    privilege_sync_exclude_roles=
